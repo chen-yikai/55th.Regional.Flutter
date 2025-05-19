@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
-import 'package:flutter_55th/clock_painter.dart';
-import 'package:flutter_55th/graph.dart';
+import 'package:flutter_55th/bottomSheet.dart';
+import 'package:flutter_55th/painter/clock_painter.dart';
+import 'package:flutter_55th/screens/graph.dart';
 
 class HomeScreen extends StatefulWidget {
   const HomeScreen({super.key});
@@ -13,6 +14,7 @@ class _HomeScreenState extends State<HomeScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
+      bottomSheet: HomeBottomsheet(),
       appBar: AppBar(
         title: Text("Tomato Bo", style: TextStyle(fontWeight: FontWeight.bold)),
         actions: [
@@ -37,12 +39,12 @@ class _HomeScreenState extends State<HomeScreen> {
                 height: 250,
                 child: CustomPaint(painter: ClockPainter(sec: 30)),
               ),
-              SizedBox(height: 20),
-              Text(
+              const SizedBox(height: 20),
+              const Text(
                 "鬧鐘",
                 style: TextStyle(fontWeight: FontWeight.bold),
               ),
-              SizedBox(height: 10),
+              const SizedBox(height: 10),
               Text(
                 "00:00",
                 style: TextStyle(fontWeight: FontWeight.bold, fontSize: 40),
