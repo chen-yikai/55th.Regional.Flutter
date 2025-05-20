@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_55th/home_sheet/add_todo.dart';
 import 'package:flutter_55th/home_sheet/todo_list.dart';
+import 'package:flutter_55th/todo_class.dart';
 
 class HomeBottomsheet extends StatefulWidget {
   const HomeBottomsheet({super.key});
@@ -28,8 +29,6 @@ class _HomeBottomsheetState extends State<HomeBottomsheet>
             CurvedAnimation(parent: fadeController, curve: Curves.easeInOut));
     super.initState();
   }
-
-  void navToAdd() {}
 
   @override
   Widget build(BuildContext context) {

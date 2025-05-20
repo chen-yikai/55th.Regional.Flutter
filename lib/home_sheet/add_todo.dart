@@ -151,7 +151,7 @@ class _AddTodoListState extends State<AddTodoList> {
                                 time: time,
                                 color: selectedColor,
                                 day: 0));
-
+                            TodoList().writeTodoList();
                             widget.goBack();
                           },
                           child: Text(

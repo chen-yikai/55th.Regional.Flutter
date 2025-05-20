@@ -14,7 +14,6 @@ class TodoListSheet extends StatefulWidget {
 
 class _TodoListSheetState extends State<TodoListSheet> {
   var todos = TodoList().todos;
-
   @override
   Widget build(BuildContext context) {
     return Column(
@@ -27,23 +26,30 @@ class _TodoListSheetState extends State<TodoListSheet> {
               "任務列表",
               style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
             ),
-            IconButton(onPressed: () {
-              widget.addTodo();
-              widget.bottomSheetController.animateTo(
-                  1, duration: Duration(milliseconds: 500),
-                  curve: Curves.easeInOut);
-            }, icon: Icon(Icons.add))
+            IconButton(
+                onPressed: () {
+                  widget.addTodo();
+                  widget.bottomSheetController.animateTo(1,
+                      duration: Duration(milliseconds: 500),
+                      curve: Curves.easeInOut);
+                },
+                icon: Icon(Icons.add))
           ],
         ),
-        Expanded(
+       todos.isNotEmpty? Expanded(
           child: ReorderableListView.builder(
               itemBuilder: (context, index) {
-                final item = todos[index];
-                return Padding(
+                final item = TodoList().todos[index];
+                return Dismissible(
                   key: ValueKey(item.id),
-                  padding: const EdgeInsets.symmetric(vertical: 10),
-                  child: Dismissible(
-                    key: ValueKey(item.id),
+                  onDismissed: (dir) {
+                    setState(() {
+                      TodoList().todos.removeWhere((i) => i.id == item.id);
+                      TodoList().writeTodoList();
+                    });
+                  },
+                  child: Padding(
+                    padding: const EdgeInsets.symmetric(vertical: 10.0),
                     child: Container(
                       padding: const EdgeInsets.all(10),
                       decoration: BoxDecoration(
@@ -57,7 +63,7 @@ class _TodoListSheetState extends State<TodoListSheet> {
                             style: TextStyle(color: Colors.white),
                           ),
                           Text(
-                           timeFormatter(TodoList().todos[index].time),
+                            timeFormatter(TodoList().todos[index].time),
                             style: TextStyle(color: Colors.white),
                           )
                         ],
@@ -66,9 +72,9 @@ class _TodoListSheetState extends State<TodoListSheet> {
                   ),
                 );
               },
-              itemCount: todos.length,
+              itemCount: TodoList().todos.length,
               onReorder: (a, b) {}),
-        ),
+        ):SizedBox(),
       ],
     );
   }
