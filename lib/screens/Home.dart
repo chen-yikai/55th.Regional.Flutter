@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_55th/bottomSheet.dart';
 import 'package:flutter_55th/painter/clock_painter.dart';
 import 'package:flutter_55th/screens/graph.dart';
+import 'package:flutter_55th/todo_class.dart';
 
 class HomeScreen extends StatefulWidget {
   const HomeScreen({super.key});
@@ -46,7 +47,7 @@ class _HomeScreenState extends State<HomeScreen> {
               ),
               const SizedBox(height: 10),
               Text(
-                "00:00",
+               timeFormatter(TodoList().todos.first.time),
                 style: TextStyle(fontWeight: FontWeight.bold, fontSize: 40),
               ),
               SizedBox(height: 10),

@@ -13,6 +13,8 @@ class _HomeBottomsheetState extends State<HomeBottomsheet>
     with SingleTickerProviderStateMixin {
   late AnimationController fadeController;
   late Animation<Offset> fadeAnimation;
+  late Animation<Offset> todoListSlideAnimation;
+  final bottomSheetController = DraggableScrollableController();
 
   @override
   void initState() {
@@ -20,6 +22,10 @@ class _HomeBottomsheetState extends State<HomeBottomsheet>
         AnimationController(vsync: this, duration: Duration(milliseconds: 500));
     fadeAnimation = Tween(begin: Offset(1, 0), end: Offset(0, 0)).animate(
         CurvedAnimation(parent: fadeController, curve: Curves.easeInOut));
+
+    todoListSlideAnimation = Tween(begin: Offset(0, 0), end: Offset(-1, 0))
+        .animate(
+            CurvedAnimation(parent: fadeController, curve: Curves.easeInOut));
     super.initState();
   }
 
@@ -28,6 +34,7 @@ class _HomeBottomsheetState extends State<HomeBottomsheet>
   @override
   Widget build(BuildContext context) {
     return DraggableScrollableSheet(
+        controller: bottomSheetController,
         expand: false,
         minChildSize: 0.2,
         initialChildSize: 0.2,
@@ -53,21 +60,28 @@ class _HomeBottomsheetState extends State<HomeBottomsheet>
                       height: MediaQuery.of(context).size.height * 0.8,
                       child: Stack(
                         children: [
-                          Padding(
-                            padding: const EdgeInsets.symmetric(horizontal: 10),
-                            child: TodoListSheet(addTodo: () {
-                              fadeController.forward();
-                            }),
+                          SlideTransition(
+                            position: todoListSlideAnimation,
+                            child: Padding(
+                              padding:
+                                  const EdgeInsets.symmetric(horizontal: 10),
+                              child: TodoListSheet(addTodo: () {
+                                fadeController.forward();
+                              },bottomSheetController: bottomSheetController,),
+                            ),
                           ),
                           SlideTransition(
                             position: fadeAnimation,
                             child: Container(
                                 padding: EdgeInsets.symmetric(horizontal: 10),
-                                color: Color(0xffF7F2FA),
                                 child: AddTodoList(
                                   goBack: () {
                                     fadeController.reverse();
+                                    bottomSheetController.animateTo(0.2,
+                                        duration: Duration(milliseconds: 500),
+                                        curve: Curves.easeInOut);
                                   },
+                                  bottomSheetController: bottomSheetController,
                                 )),
                           ),
                         ],
