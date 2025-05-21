@@ -2,9 +2,11 @@ import 'package:flutter/material.dart';
 
 class GraphPainter extends CustomPainter {
   final List<int> preDay;
+  final double controller;
   final int maxTime;
 
-  GraphPainter({required this.preDay, required this.maxTime});
+  GraphPainter(
+      {required this.preDay, required this.maxTime, required this.controller});
 
   @override
   void paint(Canvas canvas, Size size) {
@@ -77,7 +79,7 @@ class GraphPainter extends CustomPainter {
               70 + i * 50,
               size.height -
                   55 -
-                  preDay[i] * ((size.height - 50 - 70) / maxTime)),
+                  ((preDay[i] * controller) * (size.height - 50 - 70) / maxTime)),
           progressPaint);
     }
 

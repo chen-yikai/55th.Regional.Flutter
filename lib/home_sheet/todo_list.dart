@@ -3,10 +3,11 @@ import 'package:flutter_55th/todo_class.dart';
 
 class TodoListSheet extends StatefulWidget {
   final Function() addTodo;
+  final Function() homeCallBack;
   final DraggableScrollableController bottomSheetController;
 
   const TodoListSheet(
-      {super.key, required this.addTodo, required this.bottomSheetController});
+      {super.key, required this.addTodo, required this.bottomSheetController,required this.homeCallBack});
 
   @override
   State<TodoListSheet> createState() => _TodoListSheetState();
@@ -79,6 +80,7 @@ class _TodoListSheetState extends State<TodoListSheet> {
                 final item = TodoList().todos.removeAt(oldIndex);
                 TodoList().todos.insert(newIndex, item);
                 TodoList().writeTodoList();
+                widget.homeCallBack();
                 setState(() {});
               }),
         ),

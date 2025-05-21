@@ -75,6 +75,7 @@ class _HomeBottomsheetState extends State<HomeBottomsheet>
                                   _addTodoKey.currentState?.clearInput();
                                 },
                                 bottomSheetController: bottomSheetController,
+                                homeCallBack: widget.homeCallBack,
                               ),
                             ),
                           ),

@@ -9,10 +9,12 @@ class GraphScreen extends StatefulWidget {
   State<GraphScreen> createState() => _GraphScreenState();
 }
 
-class _GraphScreenState extends State<GraphScreen> {
+class _GraphScreenState extends State<GraphScreen>
+    with SingleTickerProviderStateMixin {
   late List<Todo> todoHistory;
   var totalTime = 0;
   var maxTime = 0;
+  late AnimationController controller;
   List<int> preDay = List.filled(7, 0, growable: true);
 
   Future<void> setTodoHistory() async {
@@ -37,6 +39,13 @@ class _GraphScreenState extends State<GraphScreen> {
   @override
   void initState() {
     setTodoHistory();
+    controller =
+        AnimationController(vsync: this, duration: Duration(seconds: 1));
+    controller.forward();
+    controller.addListener(() {
+      print(controller.value);
+      setState(() {});
+    });
     super.initState();
   }
 
@@ -64,7 +73,8 @@ class _GraphScreenState extends State<GraphScreen> {
               height: 400,
               // color: Colors.lightBlue,
               child: CustomPaint(
-                painter: GraphPainter(preDay: preDay, maxTime: maxTime),
+                painter: GraphPainter(
+                    preDay: preDay, maxTime: maxTime, controller: controller.value),
               ),
             ),
           ),
