@@ -13,7 +13,6 @@ class TodoListSheet extends StatefulWidget {
 }
 
 class _TodoListSheetState extends State<TodoListSheet> {
-  var todos = TodoList().todos;
   @override
   Widget build(BuildContext context) {
     return Column(
@@ -36,7 +35,7 @@ class _TodoListSheetState extends State<TodoListSheet> {
                 icon: Icon(Icons.add))
           ],
         ),
-       todos.isNotEmpty? Expanded(
+        Expanded(
           child: ReorderableListView.builder(
               itemBuilder: (context, index) {
                 final item = TodoList().todos[index];
@@ -73,8 +72,16 @@ class _TodoListSheetState extends State<TodoListSheet> {
                 );
               },
               itemCount: TodoList().todos.length,
-              onReorder: (a, b) {}),
-        ):SizedBox(),
+              onReorder: (oldIndex, newIndex) {
+                if (newIndex > oldIndex) {
+                  newIndex--;
+                }
+                final item = TodoList().todos.removeAt(oldIndex);
+                TodoList().todos.insert(newIndex, item);
+                TodoList().writeTodoList();
+                setState(() {});
+              }),
+        ),
       ],
     );
   }

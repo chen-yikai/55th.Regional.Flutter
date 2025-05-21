@@ -5,21 +5,34 @@ import 'package:flutter_55th/todo_class.dart';
 
 class AddTodoList extends StatefulWidget {
   final Function() goBack;
+  final Function() reload;
   final DraggableScrollableController bottomSheetController;
 
   const AddTodoList(
-      {super.key, required this.goBack, required this.bottomSheetController});
+      {super.key,
+      required this.goBack,
+      required this.bottomSheetController,
+      required this.reload});
 
   @override
-  State<AddTodoList> createState() => _AddTodoListState();
+  State<AddTodoList> createState() => AddTodoListState();
 }
 
-class _AddTodoListState extends State<AddTodoList> {
+class AddTodoListState extends State<AddTodoList> {
   final TextEditingController nameController = TextEditingController(),
       minutes = TextEditingController(),
       seconds = TextEditingController();
   var selectedColor = 0;
-  var isWork = false;
+  var isWork = true;
+
+  void clearInput() {
+    nameController.clear();
+    minutes.clear();
+    seconds.clear();
+    selectedColor = 0;
+    isWork = true;
+    setState(() {});
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -32,7 +45,7 @@ class _AddTodoListState extends State<AddTodoList> {
                   widget.goBack();
                 },
                 icon: Icon(Icons.arrow_back_ios)),
-            Text(
+            const Text(
               "新增任務",
               style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
             )
@@ -153,6 +166,7 @@ class _AddTodoListState extends State<AddTodoList> {
                                 day: 0));
                             TodoList().writeTodoList();
                             widget.goBack();
+                            widget.reload();
                           },
                           child: Text(
                             "新增",

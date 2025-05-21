@@ -28,6 +28,7 @@ class MainActivity : FlutterActivity() {
                     try {
                         val file = File(getExternalFilesDir(null), "todo.json")
                         file.writeText(data ?: "")
+                        result.success("writeCurrentTodo")
                     } catch (e: Exception) {
                         result.error("writeCurrentTodo", "Failed to write current todo", "")
                     }
@@ -42,12 +43,28 @@ class MainActivity : FlutterActivity() {
                     }
                 }
 
-                "get" -> {
-
+                "writeHistory" -> {
+                    try {
+                        val data = call.argument<String>("data")
+                        val file = File(getExternalFilesDir(null), "history.json")
+                        file.writeText(data ?: "[]")
+                        result.success("write history")
+                    } catch (e: Exception) {
+                        result.error("writeHistory", "", "")
+                    }
                 }
 
-                "shake" -> {
-
+                "getHistory" -> {
+                    try {
+                        val file = File(getExternalFilesDir(null), "history.json")
+                        if (file.exists()) {
+                            result.success(file.readText())
+                        } else {
+                            result.success("[]")
+                        }
+                    } catch (e: Exception) {
+                        result.error("getHistory", "", "")
+                    }
                 }
 
                 else -> result.notImplemented()

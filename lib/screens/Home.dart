@@ -1,4 +1,5 @@
 import 'dart:async';
+import 'dart:convert';
 import 'dart:math';
 
 import 'package:flutter/material.dart';
@@ -18,18 +19,32 @@ class HomeScreen extends StatefulWidget {
 class _HomeScreenState extends State<HomeScreen> with TickerProviderStateMixin {
   static const platform = MethodChannel('dev.eliaschen.tomatobo');
 
+  var todos = TodoList().todos;
+
   late Timer timer;
-  int seconds = TodoList().todos.first.time;
+  int seconds = 0;
   bool isPause = true;
   bool done = true;
   bool repeatVibrate = false;
-
+  bool init = true;
   late AnimationController shakeAnimationController;
   late Animation<double> shakeAnimation;
+
+  Future<void> getTodoList() async {
+    final data = await platform.invokeMethod("getCurrentTodo");
+    final List<dynamic> jsonList = await jsonDecode(data);
+    TodoList().todos = jsonList
+        .map((item) => Todo.fromJson(item as Map<String, dynamic>))
+        .toList();
+    setState(() {
+      seconds = TodoList().todos.first.time;
+    });
+  }
 
   @override
   void initState() {
     super.initState();
+    getTodoList();
     shakeAnimationController = AnimationController(
         vsync: this, duration: const Duration(milliseconds: 200));
     shakeAnimation = TweenSequence<double>([
@@ -71,21 +86,36 @@ class _HomeScreenState extends State<HomeScreen> with TickerProviderStateMixin {
       done = false;
     });
     timer = Timer.periodic(const Duration(seconds: 1), (timer) {
-      setState(() {
-        if (seconds > 0) {
+      if (seconds > 0) {
+        setState(() {
           seconds--;
-        } else {
+        });
+      } else {
+        // handle history
+        Todo historyItem = TodoList().todos[0];
+        historyItem.day = DateTime.now().weekday;
+        TodoList().writeHistory(historyItem);
+        // delete todo from todo list
+        setState(() {
           TodoList().todos.removeAt(0);
-          setState(() {
-            done = true;
-            isPause = true;
-          });
-          shakeAnimationController.repeat();
-          vibrate();
-          timer.cancel();
-          seconds = TodoList().todos.first.time;
-        }
-      });
+          TodoList().writeTodoList();
+        });
+        setState(() {
+          done = true;
+          isPause = true;
+        });
+        setState(() {
+          if (TodoList().todos.length != 0) {
+            seconds = TodoList().todos.first.time;
+          } else {
+            seconds = 0;
+          }
+        });
+        // alert user
+        shakeAnimationController.repeat();
+        vibrate();
+        timer.cancel();
+      }
     });
   }
 
@@ -100,7 +130,13 @@ class _HomeScreenState extends State<HomeScreen> with TickerProviderStateMixin {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      bottomSheet: HomeBottomsheet(),
+      bottomSheet: HomeBottomsheet(
+        homeCallBack: () {
+          setState(() {
+            seconds = TodoList().todos.first.time;
+          });
+        },
+      ),
       appBar: AppBar(
         title: Text("Tomato Bo", style: TextStyle(fontWeight: FontWeight.bold)),
         actions: [
@@ -114,69 +150,66 @@ class _HomeScreenState extends State<HomeScreen> with TickerProviderStateMixin {
               icon: const Icon(Icons.auto_graph))
         ],
       ),
-      body:  Container(
-              color: Color(0xffF9F9F9),
-              child: Center(
-                child: Column(
-                  mainAxisAlignment: MainAxisAlignment.center,
+      body: Container(
+        color: Color(0xffF9F9F9),
+        child: Center(
+          child: Column(
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: [
+              RotationTransition(
+                turns: shakeAnimation,
+                child: Container(
+                  width: 250,
+                  height: 250,
+                  child: CustomPaint(painter: ClockPainter(sec: seconds)),
+                ),
+              ),
+              const SizedBox(height: 20),
+              const Text(
+                "鬧鐘",
+                style: TextStyle(fontWeight: FontWeight.bold),
+              ),
+              const SizedBox(height: 10),
+              Text(
+                timeFormatter(seconds),
+                style: TextStyle(fontWeight: FontWeight.bold, fontSize: 40),
+              ),
+              SizedBox(height: 10),
+              SizedBox(
+                width: 150,
+                child: Row(
                   children: [
-                    RotationTransition(
-                      turns: shakeAnimation,
-                      child: Container(
-                        width: 250,
-                        height: 250,
-                        child: CustomPaint(painter: ClockPainter(sec: seconds)),
-                      ),
-                    ),
-                    const SizedBox(height: 20),
-                    const Text(
-                      "鬧鐘",
-                      style: TextStyle(fontWeight: FontWeight.bold),
-                    ),
-                    const SizedBox(height: 10),
-                    Text(
-                      timeFormatter(seconds),
-                      style:
-                          TextStyle(fontWeight: FontWeight.bold, fontSize: 40),
-                    ),
-                    SizedBox(height: 10),
-                    SizedBox(
-                      width: 150,
-                      child: Row(
-                        children: [
-                          Expanded(
-                            child: FilledButton(
-                              onPressed: () async {
-                                if (done || isPause) {
-                                  startTimer();
-                                } else {
-                                  pauseTimer();
-                                }
-                              },
-                              child: Text(
-                                !done
-                                    ? !isPause
-                                        ? "暫停"
-                                        : "繼續"
-                                    : "開始",
-                                style: TextStyle(fontSize: 20),
-                              ),
-                              style: FilledButton.styleFrom(
-                                  backgroundColor: isPause
-                                      ? Color(0xffEDCB77)
-                                      : Color(0xff579ECF),
-                                  shape: RoundedRectangleBorder(
-                                      borderRadius: BorderRadius.circular(10))),
-                            ),
-                          ),
-                        ],
+                    Expanded(
+                      child: FilledButton(
+                        onPressed: () async {
+                          if (done || isPause) {
+                            startTimer();
+                          } else {
+                            pauseTimer();
+                          }
+                        },
+                        child: Text(
+                          !done
+                              ? !isPause
+                                  ? "暫停"
+                                  : "繼續"
+                              : "開始",
+                          style: TextStyle(fontSize: 20),
+                        ),
+                        style: FilledButton.styleFrom(
+                            backgroundColor:
+                                isPause ? Color(0xffEDCB77) : Color(0xff579ECF),
+                            shape: RoundedRectangleBorder(
+                                borderRadius: BorderRadius.circular(10))),
                       ),
                     ),
                   ],
                 ),
               ),
-            )
-         ,
+            ],
+          ),
+        ),
+      ),
     );
   }
 }

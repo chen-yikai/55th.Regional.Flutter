@@ -6,18 +6,27 @@ import 'package:flutter/services.dart';
 class TodoList {
   static const platform = MethodChannel('dev.eliaschen.tomatobo');
 
-  Future<void> getTodoList() async {
-    final data = await platform.invokeMethod("getCurrentTodo");
-    final List<dynamic> jsonList = jsonDecode(data);
-    TodoList().todos = jsonList
-        .map((item) => Todo.fromJson(item as Map<String, dynamic>))
-        .toList();
-  }
-
   void writeTodoList() {
     final List<Map<String, dynamic>> jsonList =
         TodoList().todos.map((item) => item.toJson()).toList();
     platform.invokeMethod("writeCurrentTodo", {"data": jsonEncode(jsonList)});
+  }
+
+  Future<List<Todo>> getHistory() async {
+    final data = await platform.invokeMethod("getHistory");
+    final List<dynamic> json = await jsonDecode(data);
+    final jsonList = json
+        .map((item) => Todo.fromJson(item as Map<String, dynamic>))
+        .toList();
+    return jsonList;
+  }
+
+  void writeHistory(Todo item) async {
+    final List<Todo> historyList = await getHistory();
+    historyList.add(item);
+    platform.invokeMethod("writeHistory", {
+      "data": jsonEncode(historyList.map((item) => item.toJson()).toList())
+    });
   }
 
   TodoList._internal();
@@ -26,9 +35,8 @@ class TodoList {
 
   factory TodoList() => _instance;
 
-  List<Todo> todos = [
-    Todo(id: 000000000, name: "", isWork: true, time: 0, color: 1, day: 2)
-  ];
+  List<Todo> todos = [];
+
   List<Color> colors = [
     Color(0xffEDCB77),
     Color(0xff63C1BD),
@@ -45,7 +53,7 @@ class Todo {
   final bool isWork;
   final int time;
   final int color;
-  final int day;
+  int day;
 
   Todo(
       {required this.id,

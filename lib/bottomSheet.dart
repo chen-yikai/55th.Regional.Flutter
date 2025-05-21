@@ -1,10 +1,11 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_55th/home_sheet/add_todo.dart';
 import 'package:flutter_55th/home_sheet/todo_list.dart';
-import 'package:flutter_55th/todo_class.dart';
 
 class HomeBottomsheet extends StatefulWidget {
-  const HomeBottomsheet({super.key});
+  final VoidCallback homeCallBack;
+
+  const HomeBottomsheet({super.key, required this.homeCallBack});
 
   @override
   State<HomeBottomsheet> createState() => _HomeBottomsheetState();
@@ -16,6 +17,7 @@ class _HomeBottomsheetState extends State<HomeBottomsheet>
   late Animation<Offset> fadeAnimation;
   late Animation<Offset> todoListSlideAnimation;
   final bottomSheetController = DraggableScrollableController();
+  final GlobalKey<AddTodoListState> _addTodoKey = GlobalKey<AddTodoListState>();
 
   @override
   void initState() {
@@ -26,7 +28,7 @@ class _HomeBottomsheetState extends State<HomeBottomsheet>
 
     todoListSlideAnimation = Tween(begin: Offset(0, 0), end: Offset(-1, 0))
         .animate(
-            CurvedAnimation(parent: fadeController, curve: Curves.easeInOut));
+        CurvedAnimation(parent: fadeController, curve: Curves.easeInOut));
     super.initState();
   }
 
@@ -56,17 +58,24 @@ class _HomeBottomsheetState extends State<HomeBottomsheet>
                   ),
                   SizedBox(height: 10),
                   Container(
-                      height: MediaQuery.of(context).size.height * 0.8,
+                      height: MediaQuery
+                          .of(context)
+                          .size
+                          .height * 0.8,
                       child: Stack(
                         children: [
                           SlideTransition(
                             position: todoListSlideAnimation,
                             child: Padding(
                               padding:
-                                  const EdgeInsets.symmetric(horizontal: 10),
-                              child: TodoListSheet(addTodo: () {
-                                fadeController.forward();
-                              },bottomSheetController: bottomSheetController,),
+                              const EdgeInsets.symmetric(horizontal: 10),
+                              child: TodoListSheet(
+                                addTodo: () {
+                                  fadeController.forward();
+                                  _addTodoKey.currentState?.clearInput();
+                                },
+                                bottomSheetController: bottomSheetController,
+                              ),
                             ),
                           ),
                           SlideTransition(
@@ -74,11 +83,16 @@ class _HomeBottomsheetState extends State<HomeBottomsheet>
                             child: Container(
                                 padding: EdgeInsets.symmetric(horizontal: 10),
                                 child: AddTodoList(
+                                  key: _addTodoKey,
                                   goBack: () {
                                     fadeController.reverse();
                                     bottomSheetController.animateTo(0.2,
                                         duration: Duration(milliseconds: 500),
                                         curve: Curves.easeInOut);
+                                    _addTodoKey.currentState?.clearInput();
+                                  },
+                                  reload: () {
+                                    widget.homeCallBack();
                                   },
                                   bottomSheetController: bottomSheetController,
                                 )),

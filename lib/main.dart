@@ -1,7 +1,8 @@
 import 'dart:convert';
 
 import 'package:flutter/material.dart';
-import 'package:flutter_55th/loading.dart';
+import 'package:flutter_55th/screens/Home.dart';
+import 'package:flutter_55th/todo_class.dart';
 
 void main() {
   runApp(const Entry());
@@ -19,7 +20,7 @@ class _EntryState extends State<Entry> {
   Widget build(BuildContext context) {
     return const MaterialApp(
       debugShowCheckedModeBanner: false,
-      home: LoadingData(),
+      home: HomeScreen(),
     );
   }
 }
