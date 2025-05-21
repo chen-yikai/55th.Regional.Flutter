@@ -43,7 +43,6 @@ class _GraphScreenState extends State<GraphScreen>
         AnimationController(vsync: this, duration: Duration(seconds: 1));
     controller.forward();
     controller.addListener(() {
-      print(controller.value);
       setState(() {});
     });
     super.initState();
@@ -74,7 +73,9 @@ class _GraphScreenState extends State<GraphScreen>
               // color: Colors.lightBlue,
               child: CustomPaint(
                 painter: GraphPainter(
-                    preDay: preDay, maxTime: maxTime, controller: controller.value),
+                    preDay: preDay,
+                    maxTime: maxTime,
+                    controller: controller.value),
               ),
             ),
           ),

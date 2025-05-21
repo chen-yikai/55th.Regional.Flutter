@@ -19,8 +19,6 @@ class HomeScreen extends StatefulWidget {
 class _HomeScreenState extends State<HomeScreen> with TickerProviderStateMixin {
   static const platform = MethodChannel('dev.eliaschen.tomatobo');
 
-  var todos = TodoList().todos;
-
   late Timer timer;
   int seconds = 0;
   bool isPause = true;
@@ -37,7 +35,7 @@ class _HomeScreenState extends State<HomeScreen> with TickerProviderStateMixin {
         .map((item) => Todo.fromJson(item as Map<String, dynamic>))
         .toList();
     setState(() {
-      seconds = TodoList().todos.first.time;
+      if (TodoList().todos.length != 0) seconds = TodoList().todos.first.time;
     });
   }
 
@@ -90,7 +88,7 @@ class _HomeScreenState extends State<HomeScreen> with TickerProviderStateMixin {
         setState(() {
           seconds--;
         });
-      } else {
+      } else if(TodoList().todos.isNotEmpty) {
         // handle history
         Todo historyItem = TodoList().todos[0];
         historyItem.day = DateTime.now().weekday;
