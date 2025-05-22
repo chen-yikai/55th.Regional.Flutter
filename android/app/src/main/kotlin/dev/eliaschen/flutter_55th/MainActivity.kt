@@ -19,7 +19,7 @@ class MainActivity : FlutterActivity() {
             when (call.method) {
                 "vibrate" -> {
                     val virbrate = context.getSystemService(Context.VIBRATOR_SERVICE) as Vibrator
-                    virbrate.vibrate(500)
+                    virbrate.vibrate(1000)
                     result.success(null)
                 }
 
