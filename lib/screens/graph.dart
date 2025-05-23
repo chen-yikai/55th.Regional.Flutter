@@ -36,15 +36,20 @@ class _GraphScreenState extends State<GraphScreen>
     setState(() {});
   }
 
+  Future<void> startAnimation() async {
+    await Future.delayed(Duration(milliseconds: 500));
+    controller.forward();
+    controller.addListener(() {
+      setState(() {});
+    });
+  }
+
   @override
   void initState() {
     setTodoHistory();
     controller =
         AnimationController(vsync: this, duration: Duration(seconds: 1));
-    controller.forward();
-    controller.addListener(() {
-      setState(() {});
-    });
+    startAnimation();
     super.initState();
   }
 
